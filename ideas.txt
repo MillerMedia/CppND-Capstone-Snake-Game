@@ -1,0 +1,4 @@
+• Prevent user from going opposite direction of direction they are traveling in
+• Add sounds
+• Add menu to restart and show final score
+• Save best score
