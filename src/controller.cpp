@@ -18,7 +18,8 @@ void Controller::HandleInput(bool &running, Snake &snake) const {
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
       running = false;
-    } else if (e.type == SDL_KEYDOWN) {
+      // Ensure that it's not a repeat key press since you would change direction the same way two times in a row
+    } else if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
       switch (e.key.keysym.sym) {
         case SDLK_UP:
             if(snake.size == 1 || (snake.direction != Snake::Direction::kDown || snake.direction != Snake::Direction::kUp)) {

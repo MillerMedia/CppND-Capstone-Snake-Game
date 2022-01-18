@@ -8,7 +8,10 @@ Renderer::Renderer(const std::size_t screen_width,
     : screen_width(screen_width),
       screen_height(screen_height),
       grid_width(grid_width),
-      grid_height(grid_height) {
+      grid_height(grid_height),
+      results_width(screen_width * 0.75),
+      results_height(screen_height * 0.75)
+      {
   // Initialize SDL
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     std::cerr << "SDL could not initialize.\n";
@@ -64,10 +67,13 @@ void Renderer::Render(Snake const snake, SDL_Point const &food) {
   // Render snake's head
   block.x = static_cast<int>(snake.head_x) * block.w;
   block.y = static_cast<int>(snake.head_y) * block.h;
-  if (snake.alive) {
+
+  // For debugging
+  if (!snake.alive) {
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
   } else {
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+      DisplayResults(1);
   }
   SDL_RenderFillRect(sdl_renderer, &block);
 
@@ -79,3 +85,16 @@ void Renderer::UpdateWindowTitle(int score, int fps) {
   std::string title{"Snake Score: " + std::to_string(score) + " FPS: " + std::to_string(fps)};
   SDL_SetWindowTitle(sdl_window, title.c_str());
 }
+
+void Renderer::DisplayResults(int score){
+    SDL_Rect rect;
+
+    // The results screen will fill 50% of the screen
+    rect.w = static_cast<int>(results_width);
+    rect.h = static_cast<int>(results_height);
+    rect.x = static_cast<int>(screen_width / 2) - (results_width / 2);
+    rect.y = static_cast<int>(screen_height / 2) - (results_height / 2);
+
+    SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderFillRect(sdl_renderer, &rect);
+};
