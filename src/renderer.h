@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "SDL.h"
+#include "SDL_mixer.h"
 #include "snake.h"
 
 class Renderer {

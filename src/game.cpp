@@ -1,6 +1,8 @@
 #include "game.h"
 #include <iostream>
 #include "SDL.h"
+#include "SDL_mixer.h"
+#include "audio_player.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
@@ -80,6 +82,10 @@ void Game::Update() {
   if (food.x == new_x && food.y == new_y) {
     score++;
     PlaceFood();
+
+    audio_sample s("smb_coin.wav", MIX_MAX_VOLUME / 2);
+    s.play();
+
     // Grow snake and increase speed.
     snake.GrowBody();
     snake.speed += 0.02;
