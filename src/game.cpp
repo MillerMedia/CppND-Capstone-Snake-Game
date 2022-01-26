@@ -13,8 +13,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
 
   initAudio();
 
-  food_sound = createAudio("/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/smb_coin.wav", 0, SDL_MIX_MAXVOLUME / 2);
-  end_music = createAudio("/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/smb_gameover.wav", 0, SDL_MIX_MAXVOLUME / 2);
+  food_sound = createAudio("../src/smb_coin.wav", 0, SDL_MIX_MAXVOLUME / 2);
+  end_music = createAudio("../src/smb_gameover.wav", 0, SDL_MIX_MAXVOLUME / 2);
   play_end_song = true;
 }
 
@@ -77,7 +77,6 @@ void Game::Update() {
   if (!snake.alive) {
       // Play once
       if(play_end_song) {
-          std::cout << "Running final song." << std::endl;
           playSoundFromMemory(end_music, SDL_MIX_MAXVOLUME / 2);
           play_end_song = false;
       }
