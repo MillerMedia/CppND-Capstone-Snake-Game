@@ -33,7 +33,7 @@
 #define AUDIO_FORMAT AUDIO_S16LSB
 
 /* Frequency of the file */
-#define AUDIO_FREQUENCY 48000
+#define AUDIO_FREQUENCY 21500
 
 /* 1 mono, 2 stereo, 4 quad, 6 (5.1) */
 #define AUDIO_CHANNELS 2

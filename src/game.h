@@ -20,6 +20,8 @@ class Game {
   Snake snake;
   SDL_Point food;
   Audio * food_sound;
+  Audio * end_music;
+  bool play_end_song;
 
   std::random_device dev;
   std::mt19937 engine;
@@ -32,6 +34,6 @@ class Game {
   void Update();
 };
 
-// @todo deconstructor freeAudio(food_sound);
+// @todo deconstructor freeAudio(food_sound); endAudio();
 
 #endif

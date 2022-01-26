@@ -12,7 +12,10 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   PlaceFood();
 
   initAudio();
+
   food_sound = createAudio("/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/smb_coin.wav", 0, SDL_MIX_MAXVOLUME / 2);
+  end_music = createAudio("/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/smb_gameover.wav", 0, SDL_MIX_MAXVOLUME / 2);
+  play_end_song = true;
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -72,6 +75,13 @@ void Game::PlaceFood() {
 
 void Game::Update() {
   if (!snake.alive) {
+      // Play once
+      if(play_end_song) {
+          std::cout << "Running final song." << std::endl;
+          playSoundFromMemory(end_music, SDL_MIX_MAXVOLUME / 2);
+          play_end_song = false;
+      }
+
       // Display results
       return;
   }
@@ -87,7 +97,7 @@ void Game::Update() {
     PlaceFood();
 
     // Need to play it in its own thread
-    playSoundFromMemory(food_sound, SDL_MIX_MAXVOLUME);
+    playSoundFromMemory(food_sound, SDL_MIX_MAXVOLUME / 2);
 
     // Grow snake and increase speed.
     snake.GrowBody();

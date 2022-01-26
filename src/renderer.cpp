@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "SDL.h"
+#include "audio.h"
 
 Renderer::Renderer(const std::size_t screen_width,
                    const std::size_t screen_height,
@@ -74,7 +75,6 @@ void Renderer::Render(Snake const snake, SDL_Point const &food) {
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
   } else {
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-      DisplayResults(1);
   }
   SDL_RenderFillRect(sdl_renderer, &block);
 
