@@ -12,11 +12,15 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   PlaceFood();
 
   initAudio();
-
   food_sound = createAudio("../src/smb_coin.wav", 0, SDL_MIX_MAXVOLUME / 2);
   end_music = createAudio("../src/smb_gameover.wav", 0, SDL_MIX_MAXVOLUME / 2);
-  play_end_song = true;
+  Start();
 }
+
+// Run this at the beginning of every iteration of the game
+void Game::Start(){
+    play_end_song = true;
+};
 
 void Game::Run(Controller const &controller, Renderer &renderer,
                std::size_t target_frame_duration) {
@@ -25,7 +29,6 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_end;
   Uint32 frame_duration;
   int frame_count = 0;
-  bool running = true;
 
   while (running) {
     frame_start = SDL_GetTicks();
@@ -33,7 +36,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, food);
+    renderer.Render(snake, food, score);
 
     frame_end = SDL_GetTicks();
 
@@ -81,7 +84,6 @@ void Game::Update() {
           play_end_song = false;
       }
 
-      // Display results
       return;
   }
 

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include "audio.h"
 
 Renderer::Renderer(const std::size_t screen_width,
@@ -12,7 +13,9 @@ Renderer::Renderer(const std::size_t screen_width,
       grid_width(grid_width),
       grid_height(grid_height),
       results_width(screen_width * 0.75),
-      results_height(screen_height * 0.75)
+      results_height(screen_height * 0.75),
+      results_x((screen_width / 2) - (results_width / 2)),
+      results_y((screen_height / 2) - (results_height / 2))
       {
   // Initialize SDL
   if (SDL_Init(SDL_INIT_VIDEO) < 0 || SDL_Init(SDL_INIT_AUDIO) < 0 ) {
@@ -36,14 +39,21 @@ Renderer::Renderer(const std::size_t screen_width,
     std::cerr << "Renderer could not be created.\n";
     std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
   }
+
+  // Initiate font
+  TTF_Init();
+  default_font = TTF_OpenFont("arial.ttf", 25);
+
 }
 
 Renderer::~Renderer() {
-  SDL_DestroyWindow(sdl_window);
-  SDL_Quit();
+    TTF_Quit();
+    endAudio();
+    SDL_DestroyWindow(sdl_window);
+    SDL_Quit();
 }
 
-void Renderer::Render(Snake const snake, SDL_Point const &food) {
+void Renderer::Render(Snake const snake, SDL_Point const &food, int score) {
   SDL_Rect block;
   block.w = screen_width / grid_width;
   block.h = screen_height / grid_height;
@@ -75,6 +85,7 @@ void Renderer::Render(Snake const snake, SDL_Point const &food) {
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
   } else {
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+    DisplayResults(score);
   }
   SDL_RenderFillRect(sdl_renderer, &block);
 
@@ -93,11 +104,46 @@ void Renderer::DisplayResults(int score){
     // The results screen will fill 50% of the screen
     rect.w = static_cast<int>(results_width);
     rect.h = static_cast<int>(results_height);
-    rect.x = static_cast<int>(screen_width / 2) - (results_width / 2);
-    rect.y = static_cast<int>(screen_height / 2) - (results_height / 2);
+    rect.x = static_cast<int>(results_x);
+    rect.y = static_cast<int>(results_y);
 
-    SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(sdl_renderer, &rect);
 
-
+    DisplayNewGameButton("New Game");
+    DisplayText("Your score:", rect.x, rect.y-rect.h);
 };
+
+void Renderer::DisplayNewGameButton(const std::string message){
+    SDL_Rect rect;
+
+    rect.w = static_cast<int>(results_width / 3);
+    rect.h = static_cast<int>(rect.w / 3);
+
+    // Center horizontally
+    rect.x = static_cast<int>(results_width + results_x) - (results_width / 2) - (rect.w / 2);
+    rect.y = static_cast<int>(results_height + results_y) - (rect.h * 2);
+
+    SDL_SetRenderDrawColor(sdl_renderer, 206, 206, 206, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(sdl_renderer, &rect);
+};
+
+void Renderer::DisplayText(const char *message, int x, int y) {
+    // Reference: https://gigi.nullneuron.net/gigilabs/displaying-text-in-sdl2-with-sdl_ttf/
+
+    SDL_Color color = { 255, 255, 255 };
+    SDL_Surface * surface = TTF_RenderText_Solid(default_font, (const char *) message, color);
+    SDL_Texture * texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
+
+    int texW = 0;
+    int texH = 0;
+    SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+    SDL_Rect dstrect = { x, y, texW, texH };
+
+    SDL_RenderCopy(sdl_renderer, texture, NULL, NULL);
+    SDL_RenderPresent(sdl_renderer);
+
+    // Release resources
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
+}

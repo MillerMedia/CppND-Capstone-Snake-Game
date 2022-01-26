@@ -13,6 +13,7 @@ class Game {
   Game(std::size_t grid_width, std::size_t grid_height);
   void Run(Controller const &controller, Renderer &renderer,
            std::size_t target_frame_duration);
+  void Start();
   int GetScore() const;
   int GetSize() const;
 
@@ -22,6 +23,7 @@ class Game {
   Audio * food_sound;
   Audio * end_music;
   bool play_end_song;
+  bool running;
 
   std::random_device dev;
   std::mt19937 engine;
