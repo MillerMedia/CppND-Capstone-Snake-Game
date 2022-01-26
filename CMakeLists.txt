@@ -14,8 +14,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} src)
 
-find_package(SDL2TTF REQUIRED)
-include_directories(${SDL2TTF_INCLUDE_DIR} src)
+find_package(SDL2_IMAGE REQUIRED SDL2_image>=2.0.0)
+include_directories(${SDL2_IMAGE_INCLUDE_DIR} src)
+
+find_package(SDL2_ttf REQUIRED SDL2_ttf>=2.0.0)
+include_directories(${SDL2_TTF_INCLUDE_DIR} src)
+
+find_package(SDL2_mixer REQUIRED SDL2_mixer>=2.0.0)
+include_directories(${SDL2_MIXER_INCLUDE_DIR} src)
 
 add_executable(SnakeGame src/main.cpp src/game.cpp src/controller.cpp src/renderer.cpp src/snake.cpp)
 string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)

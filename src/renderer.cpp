@@ -69,7 +69,7 @@ void Renderer::Render(Snake const snake, SDL_Point const &food) {
   block.y = static_cast<int>(snake.head_y) * block.h;
 
   // For debugging
-  if (!snake.alive) {
+  if (snake.alive) {
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
   } else {
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
@@ -97,4 +97,6 @@ void Renderer::DisplayResults(int score){
 
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderFillRect(sdl_renderer, &rect);
+
+    
 };
