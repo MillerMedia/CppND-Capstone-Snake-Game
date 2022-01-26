@@ -3,6 +3,7 @@
 
 #include <random>
 #include "SDL.h"
+#include "audio.h"
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
@@ -18,6 +19,7 @@ class Game {
  private:
   Snake snake;
   SDL_Point food;
+  Audio * food_sound;
 
   std::random_device dev;
   std::mt19937 engine;
@@ -29,5 +31,7 @@ class Game {
   void PlaceFood();
   void Update();
 };
+
+// @todo deconstructor freeAudio(food_sound);
 
 #endif

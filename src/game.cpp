@@ -2,7 +2,7 @@
 #include <iostream>
 #include "SDL.h"
 #include "SDL_mixer.h"
-#include "audio_player.h"
+#include "audio.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
@@ -10,6 +10,9 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
   PlaceFood();
+
+  initAudio();
+  food_sound = createAudio("/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/smb_coin.wav", 0, SDL_MIX_MAXVOLUME / 2);
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -83,8 +86,8 @@ void Game::Update() {
     score++;
     PlaceFood();
 
-    audio_sample s("smb_coin.wav", MIX_MAX_VOLUME / 2);
-    s.play();
+    // Need to play it in its own thread
+    playSoundFromMemory(food_sound, SDL_MIX_MAXVOLUME);
 
     // Grow snake and increase speed.
     snake.GrowBody();

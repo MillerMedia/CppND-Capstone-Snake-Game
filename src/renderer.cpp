@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include "SDL.h"
-#include "SDL_mixer.h"
 
 Renderer::Renderer(const std::size_t screen_width,
                    const std::size_t screen_height,
@@ -19,17 +18,6 @@ Renderer::Renderer(const std::size_t screen_width,
     std::cerr << "SDL could not initialize.\n";
     std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
   }
-
-  if (Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3 | MIX_INIT_OGG) < 0) {
-      std::cout << "Can not initialize mixer!" << std::endl;
-  }
-
-  if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
-      std::cout << "Can not initialize mixer!" << std::endl;
-  }
-
-  // Amount of channels (Max amount of sounds playing at the same time)
-  Mix_AllocateChannels(32);
 
   // Create Window
   sdl_window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED,
