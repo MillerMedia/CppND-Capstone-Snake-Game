@@ -1,8 +1,11 @@
 #include "renderer.h"
 #include <iostream>
 #include <string>
+#include <assert.h>
+#include <sys/stat.h>
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "SDL_image.h"
 #include "audio.h"
 
 Renderer::Renderer(const std::size_t screen_width,
@@ -17,6 +20,7 @@ Renderer::Renderer(const std::size_t screen_width,
       results_x((screen_width / 2) - (results_width / 2)),
       results_y((screen_height / 2) - (results_height / 2))
       {
+
   // Initialize SDL
   if (SDL_Init(SDL_INIT_VIDEO) < 0 || SDL_Init(SDL_INIT_AUDIO) < 0 ) {
     std::cerr << "SDL could not initialize.\n";
@@ -40,13 +44,13 @@ Renderer::Renderer(const std::size_t screen_width,
     std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
   }
 
-  // Initiate font
-  //Initialize SDL_ttf
-  if( TTF_Init() == -1 )
-  {
-      std::cerr << "SDL TTF could not be loading.\n";
+  // Reference: https://stackoverflow.com/a/63003939/975592
+  int flags = IMG_INIT_JPG | IMG_INIT_PNG;
+  int initted = IMG_Init(flags);
+  if((initted & flags) != flags) {
+      printf("IMG_Init: Failed to init required jpg and png support!\n");
+      printf("IMG_Init: %s\n", IMG_GetError());
   }
-  default_font = TTF_OpenFont("arial.ttf", 25);
 
 }
 
@@ -91,9 +95,9 @@ void Renderer::Render(Snake const snake, SDL_Point const &food, int score) {
   block.x = static_cast<int>(snake.head_x) * block.w;
   block.y = static_cast<int>(snake.head_y) * block.h;
 
-  // For debugging
   SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, transparency_level);
 
+  // For debugging
   if(!snake.alive) {
       DisplayResults(score);
   }
@@ -102,7 +106,7 @@ void Renderer::Render(Snake const snake, SDL_Point const &food, int score) {
       SDL_RenderFillRect(sdl_renderer, &block);
   }
 
-  // Update Screen
+  DisplayNewGameButton();
   SDL_RenderPresent(sdl_renderer);
 }
 
@@ -115,47 +119,72 @@ void Renderer::DisplayResults(int score){
     SDL_Rect rect;
 
     // The results screen will fill 50% of the screen
-    rect.w = static_cast<int>(results_width);
-    rect.h = static_cast<int>(results_height);
-    rect.x = static_cast<int>(results_x);
-    rect.y = static_cast<int>(results_y);
+    rect.w = results_width;
+    rect.h = results_height;
+    rect.x = results_x;
+    rect.y = results_y;
 
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(sdl_renderer, &rect);
 
-    DisplayNewGameButton("New Game");
-    DisplayText("Your score:", 0, 0);
+    //DisplayNewGameButton("New Game");
 };
 
-void Renderer::DisplayNewGameButton(const std::string message){
-    SDL_Rect rect;
+void Renderer::DisplayNewGameButton(){
+    button_image.w = 320;
+    button_image.h = 106;
+    button_image.x = static_cast<int>(results_width + results_x) - (results_width / 2) - (button_image.w / 2);
+    button_image.y = static_cast<int>(results_height + results_y) - (button_image.h * 2);
 
-    rect.w = static_cast<int>(results_width / 3);
-    rect.h = static_cast<int>(rect.w / 3);
+    SDL_Surface *image_surface = nullptr;
 
-    // Center horizontally
-    rect.x = static_cast<int>(results_width + results_x) - (results_width / 2) - (rect.w / 2);
-    rect.y = static_cast<int>(results_height + results_y) - (rect.h * 2);
+    const char *filePath = "/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/new-game-button.png";
+    struct stat fileInfo;
+    assert(stat(filePath, &fileInfo) == 0 && "Texture file does not exist!");
+    image_surface = IMG_Load(filePath);
 
-    SDL_SetRenderDrawColor(sdl_renderer, 206, 206, 206, SDL_ALPHA_OPAQUE);
-    SDL_RenderFillRect(sdl_renderer, &rect);
+    if(image_surface == nullptr)
+    {
+        std::cout << "Cannot find image.\n" << std::endl;
+    }
+
+    SDL_Texture *image_texture = SDL_CreateTextureFromSurface(sdl_renderer, image_surface);
+    SDL_FreeSurface(image_surface);
+
+    SDL_RenderCopy(sdl_renderer, image_texture, nullptr, &button_image);
 };
 
-void Renderer::DisplayText(const char *message, int x, int y) {
-    // Reference: https://gigi.nullneuron.net/gigilabs/displaying-text-in-sdl2-with-sdl_ttf/
-    SDL_Color color = { 125, 125, 125 };
-    SDL_Surface * surface = TTF_RenderText_Solid(default_font, "Test Text.", color);
-    SDL_Texture * texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
+void Renderer::DisplayText(const char *message, int x, int y, SDL_Rect rect) {
+    // Reference: https://stackoverflow.com/q/63000761/975592
+    /*TTF_Init();
+    default_font = TTF_OpenFont("/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/arial.ttf", 12);
 
-    int texW = 100;
-    int texH = 100;
-    SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-    SDL_Rect dstrect = { x, y, texW, texH };
+    if(default_font == nullptr)
+    {
+        std::cout << "Font not created.\n" << std::endl;
+        std::cout << TTF_GetError() << "\n" << std::endl;
+    }
 
-    SDL_RenderCopy(sdl_renderer, texture, NULL, &dstrect);
-    //SDL_RenderPresent(sdl_renderer);
+    SDL_Rect button_image;
 
-    // Release resources
-    SDL_DestroyTexture(texture);
-    SDL_FreeSurface(surface);
+    button_image.w = 320;
+    button_image.h = 106;
+    button_image.x = static_cast<int>(results_width + results_x) - (results_width / 2) - (button_image.w / 2);
+    button_image.y = static_cast<int>(results_height + results_y) - (button_image.h * 2);
+
+    SDL_Surface *text_surface = nullptr;
+    text_surface = TTF_RenderText_Solid(
+            default_font,
+            "Test Text.",
+            {255,0,0});
+
+    if(text_surface == nullptr)
+    {
+        std::cout << "Text surface not created.\n" << std::endl;
+        std::cout << TTF_GetError() << "\n" << std::endl;
+    }
+
+    SDL_Texture *text_texture = SDL_CreateTextureFromSurface(sdl_renderer, text_surface);
+    SDL_FreeSurface(text_surface);
+    SDL_RenderCopy(sdl_renderer, text_texture, nullptr, &button_image);*/
 };
