@@ -36,12 +36,16 @@ Renderer::Renderer(const std::size_t screen_width,
   // Create renderer
   sdl_renderer = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_ACCELERATED);
   if (nullptr == sdl_renderer) {
-    std::cerr << "Renderer could not be created.\n";
+      std::cerr << "Renderer could not be created.\n";
     std::cerr << "SDL_Error: " << SDL_GetError() << "\n";
   }
 
   // Initiate font
-  TTF_Init();
+  //Initialize SDL_ttf
+  if( TTF_Init() == -1 )
+  {
+      std::cerr << "SDL TTF could not be loading.\n";
+  }
   default_font = TTF_OpenFont("arial.ttf", 25);
 
 }
@@ -54,22 +58,29 @@ Renderer::~Renderer() {
 }
 
 void Renderer::Render(Snake const snake, SDL_Point const &food, int score) {
-  SDL_Rect block;
-  block.w = screen_width / grid_width;
-  block.h = screen_height / grid_height;
+    SDL_Rect block;
+    block.w = screen_width / grid_width;
+    block.h = screen_height / grid_height;
+    auto transparency_level = SDL_ALPHA_OPAQUE;
+
+    if(!snake.alive){
+      transparency_level = SDL_ALPHA_TRANSPARENT;
+    }
 
   // Clear screen
-  SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
+  SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, transparency_level);
   SDL_RenderClear(sdl_renderer);
 
   // Render food
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
   block.x = food.x * block.w;
   block.y = food.y * block.h;
+
   SDL_RenderFillRect(sdl_renderer, &block);
 
   // Render snake's body
-  SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+  SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, transparency_level);
+
   for (SDL_Point const &point : snake.body) {
     block.x = point.x * block.w;
     block.y = point.y * block.h;
@@ -81,13 +92,15 @@ void Renderer::Render(Snake const snake, SDL_Point const &food, int score) {
   block.y = static_cast<int>(snake.head_y) * block.h;
 
   // For debugging
-  if (snake.alive) {
-    SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
-  } else {
-    SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
-    DisplayResults(score);
+  SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, transparency_level);
+
+  if(!snake.alive) {
+      DisplayResults(score);
   }
-  SDL_RenderFillRect(sdl_renderer, &block);
+
+  if(snake.alive){
+      SDL_RenderFillRect(sdl_renderer, &block);
+  }
 
   // Update Screen
   SDL_RenderPresent(sdl_renderer);
@@ -111,7 +124,7 @@ void Renderer::DisplayResults(int score){
     SDL_RenderFillRect(sdl_renderer, &rect);
 
     DisplayNewGameButton("New Game");
-    DisplayText("Your score:", rect.x, rect.y-rect.h);
+    DisplayText("Your score:", 0, 0);
 };
 
 void Renderer::DisplayNewGameButton(const std::string message){
@@ -130,20 +143,19 @@ void Renderer::DisplayNewGameButton(const std::string message){
 
 void Renderer::DisplayText(const char *message, int x, int y) {
     // Reference: https://gigi.nullneuron.net/gigilabs/displaying-text-in-sdl2-with-sdl_ttf/
-
-    SDL_Color color = { 255, 255, 255 };
-    SDL_Surface * surface = TTF_RenderText_Solid(default_font, (const char *) message, color);
+    SDL_Color color = { 125, 125, 125 };
+    SDL_Surface * surface = TTF_RenderText_Solid(default_font, "Test Text.", color);
     SDL_Texture * texture = SDL_CreateTextureFromSurface(sdl_renderer, surface);
 
-    int texW = 0;
-    int texH = 0;
+    int texW = 100;
+    int texH = 100;
     SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
     SDL_Rect dstrect = { x, y, texW, texH };
 
-    SDL_RenderCopy(sdl_renderer, texture, NULL, NULL);
-    SDL_RenderPresent(sdl_renderer);
+    SDL_RenderCopy(sdl_renderer, texture, NULL, &dstrect);
+    //SDL_RenderPresent(sdl_renderer);
 
     // Release resources
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
-}
+};

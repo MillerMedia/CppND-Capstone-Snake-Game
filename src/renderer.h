@@ -35,8 +35,6 @@ class Renderer {
   const std::size_t results_y;
 
   TTF_Font * default_font;
-
-
 };
 
 #endif

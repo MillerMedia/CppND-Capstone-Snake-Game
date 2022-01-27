@@ -78,7 +78,6 @@ void Game::PlaceFood() {
 
 void Game::Update() {
   if (!snake.alive) {
-      // Play once
       if(play_end_song) {
           playSoundFromMemory(end_music, SDL_MIX_MAXVOLUME / 2);
           play_end_song = false;
