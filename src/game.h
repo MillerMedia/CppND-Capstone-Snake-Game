@@ -23,7 +23,7 @@ class Game {
   Audio * food_sound;
   Audio * end_music;
   bool play_end_song;
-  bool running;
+  bool running{true};
 
   std::random_device dev;
   std::mt19937 engine;
@@ -32,10 +32,8 @@ class Game {
 
   int score{0};
 
-  void PlaceFood();
+  void RandomPlacement(std::string item_type);
   void Update();
 };
-
-// @todo deconstructor freeAudio(food_sound); endAudio();
 
 #endif

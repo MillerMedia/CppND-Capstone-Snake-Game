@@ -9,7 +9,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
-  PlaceFood();
+    RandomPlacement("food");
 
   initAudio();
   food_sound = createAudio("../src/smb_coin.wav", 0, SDL_MIX_MAXVOLUME / 2);
@@ -21,6 +21,13 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
 void Game::Start(){
     play_end_song = true;
     snake.alive = true;
+    snake.size = 1;
+    snake.speed = 0.1f;
+    snake.body = {};
+    score = 0;
+    RandomPlacement("snake");
+    RandomPlacement("food");
+    snake.is_new = false;
 };
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -32,6 +39,10 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   int frame_count = 0;
 
   while (running) {
+      if(snake.is_new){
+          Start();
+      }
+
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
@@ -62,18 +73,26 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   }
 }
 
-void Game::PlaceFood() {
+void Game::RandomPlacement(std::string item_type) {
   int x, y;
   while (true) {
     x = random_w(engine);
     y = random_h(engine);
     // Check that the location is not occupied by a snake item before placing
     // food.
-    if (!snake.SnakeCell(x, y)) {
-      food.x = x;
-      food.y = y;
-      return;
+    if(item_type == "food") {
+        if (!snake.SnakeCell(x, y)) {
+            food.x = x;
+            food.y = y;
+            return;
+        }
+    } else if(item_type == "snake") {
+        snake.head_x = x;
+        snake.head_y = y;
+        return;
     }
+
+    return;
   }
 }
 
@@ -95,7 +114,7 @@ void Game::Update() {
   // Check if there's food over here
   if (food.x == new_x && food.y == new_y) {
     score++;
-    PlaceFood();
+      RandomPlacement("food");
 
     // Need to play it in its own thread
     playSoundFromMemory(food_sound, SDL_MIX_MAXVOLUME / 2);

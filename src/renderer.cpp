@@ -154,6 +154,8 @@ void Renderer::DisplayNewGameButton(){
 
     SDL_RenderCopy(sdl_renderer, image_texture, nullptr, &button_image);
 
+    SDL_DestroyTexture(image_texture);
+
     // Add to vector to be used in controller
     button_coordinates.emplace_back(button_image.x);
     button_coordinates.emplace_back(button_image.y);

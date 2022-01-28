@@ -9,23 +9,6 @@ void Controller::ChangeDirection(Snake &snake, Snake::Direction input,
   if (snake.direction != opposite || snake.size == 1) snake.direction = input;
 }
 
-void Controller::MousePress(SDL_MouseButtonEvent &b, Snake &snake, std::vector<int>button_coordinates) {
-    //if(!snake.alive) {
-        if (b.button == SDL_BUTTON_LEFT) {
-            // See if it is in the range of the button
-            int button_x = button_coordinates[0];
-            int button_y = button_coordinates[1];
-            int button_w = button_coordinates[2];
-            int button_h = button_coordinates[3];
-
-            if(b.x > button_x && b.x < (button_x + button_w) && b.y > button_y && b.y < (button_y + button_h)){
-                // Restart game
-                game_restart = true;
-            }
-        }
-    //}
-}
-
 /*
  * This function has been updated to prevent the user
  * from going backwards into its own body
@@ -67,7 +50,20 @@ void Controller::HandleInput(bool &running, Snake &snake, std::vector<int>button
           break;
       }
     } else if (e.type == SDL_MOUSEBUTTONDOWN) {
-        MousePress(e.button, snake, button_coordinates);
+        if(!snake.alive) {
+            if (e.button.button == SDL_BUTTON_LEFT) {
+                // See if it is in the range of the button
+                int button_x = button_coordinates[0];
+                int button_y = button_coordinates[1];
+                int button_w = button_coordinates[2];
+                int button_h = button_coordinates[3];
+
+                if(e.button.x > button_x && e.button.x < (button_x + button_w) && e.button.y > button_y && e.button.y < (button_y + button_h)){
+                    // Restart game
+                    snake.is_new = true;
+                }
+            }
+        }
         break;
     }
   }
