@@ -16,17 +16,16 @@ class Renderer {
     void Render(Snake const snake, SDL_Point const &food, int score);
     void UpdateWindowTitle(int score, int fps);
 
-    void DisplayResults(int score);
+    //void DisplayResults(int score);
     void DisplayNewGameButton();
-    void DisplayText(const char *message, int x, int y, SDL_Rect rect);
+    //void DisplayScore(int score, int x, int y, SDL_Rect rect);
 
     int results_width;
     int results_height;
     int results_x;
     int results_y;
 
-    SDL_Rect button_image;
-
+    std::vector<int>button_coordinates;
  private:
     SDL_Window *sdl_window;
     SDL_Renderer *sdl_renderer;
@@ -36,7 +35,7 @@ class Renderer {
     const std::size_t grid_width;
     const std::size_t grid_height;
 
-    TTF_Font * default_font;
+    //TTF_Font * default_font;
 };
 
 #endif

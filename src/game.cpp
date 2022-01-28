@@ -20,6 +20,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
 // Run this at the beginning of every iteration of the game
 void Game::Start(){
     play_end_song = true;
+    snake.alive = true;
 };
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -34,7 +35,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake, renderer.button_image);
+    controller.HandleInput(running, snake, renderer.button_coordinates);
     Update();
     renderer.Render(snake, food, score);
 

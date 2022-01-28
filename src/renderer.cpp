@@ -45,17 +45,17 @@ Renderer::Renderer(const std::size_t screen_width,
   }
 
   // Reference: https://stackoverflow.com/a/63003939/975592
-  int flags = IMG_INIT_JPG | IMG_INIT_PNG;
+  /*int flags = IMG_INIT_JPG | IMG_INIT_PNG;
   int initted = IMG_Init(flags);
   if((initted & flags) != flags) {
       printf("IMG_Init: Failed to init required jpg and png support!\n");
       printf("IMG_Init: %s\n", IMG_GetError());
-  }
+  }*/
 
 }
 
 Renderer::~Renderer() {
-    TTF_Quit();
+    //TTF_Quit();
     endAudio();
     SDL_DestroyWindow(sdl_window);
     SDL_Quit();
@@ -99,14 +99,14 @@ void Renderer::Render(Snake const snake, SDL_Point const &food, int score) {
 
   // For debugging
   if(!snake.alive) {
-      DisplayResults(score);
+      //DisplayResults(score);
+      DisplayNewGameButton();
   }
 
   if(snake.alive){
       SDL_RenderFillRect(sdl_renderer, &block);
   }
 
-  DisplayNewGameButton();
   SDL_RenderPresent(sdl_renderer);
 }
 
@@ -115,7 +115,7 @@ void Renderer::UpdateWindowTitle(int score, int fps) {
   SDL_SetWindowTitle(sdl_window, title.c_str());
 }
 
-void Renderer::DisplayResults(int score){
+/*void Renderer::DisplayResults(int score){
     SDL_Rect rect;
 
     // The results screen will fill 50% of the screen
@@ -127,10 +127,11 @@ void Renderer::DisplayResults(int score){
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(sdl_renderer, &rect);
 
-    //DisplayNewGameButton("New Game");
-};
+    //DisplayScore(score, rect.x, rect.y, rect);
+};*/
 
 void Renderer::DisplayNewGameButton(){
+    SDL_Rect button_image;
     button_image.w = 320;
     button_image.h = 106;
     button_image.x = static_cast<int>(results_width + results_x) - (results_width / 2) - (button_image.w / 2);
@@ -138,7 +139,7 @@ void Renderer::DisplayNewGameButton(){
 
     SDL_Surface *image_surface = nullptr;
 
-    const char *filePath = "/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/new-game-button.png";
+    const char *filePath = "../src/new-game-button.png";
     struct stat fileInfo;
     assert(stat(filePath, &fileInfo) == 0 && "Texture file does not exist!");
     image_surface = IMG_Load(filePath);
@@ -152,12 +153,18 @@ void Renderer::DisplayNewGameButton(){
     SDL_FreeSurface(image_surface);
 
     SDL_RenderCopy(sdl_renderer, image_texture, nullptr, &button_image);
+
+    // Add to vector to be used in controller
+    button_coordinates.emplace_back(button_image.x);
+    button_coordinates.emplace_back(button_image.y);
+    button_coordinates.emplace_back(button_image.w);
+    button_coordinates.emplace_back(button_image.h);
 };
 
-void Renderer::DisplayText(const char *message, int x, int y, SDL_Rect rect) {
+/*void Renderer::DisplayScore(int score, int x, int y, SDL_Rect rect) {
     // Reference: https://stackoverflow.com/q/63000761/975592
-    /*TTF_Init();
-    default_font = TTF_OpenFont("/Users/mattmiller/Sites/CppND-Capstone-Snake-Game/src/arial.ttf", 12);
+    TTF_Init();
+    default_font = TTF_OpenFont("../src/arial.ttf", 12);
 
     if(default_font == nullptr)
     {
@@ -165,18 +172,15 @@ void Renderer::DisplayText(const char *message, int x, int y, SDL_Rect rect) {
         std::cout << TTF_GetError() << "\n" << std::endl;
     }
 
-    SDL_Rect button_image;
-
-    button_image.w = 320;
-    button_image.h = 106;
-    button_image.x = static_cast<int>(results_width + results_x) - (results_width / 2) - (button_image.w / 2);
-    button_image.y = static_cast<int>(results_height + results_y) - (button_image.h * 2);
+    std::string score_string = std::to_string(score);
+    score_string += "Final string: ";
+    char const *num_char = score_string.c_str();
 
     SDL_Surface *text_surface = nullptr;
     text_surface = TTF_RenderText_Solid(
             default_font,
-            "Test Text.",
-            {255,0,0});
+            num_char,
+            {0,0,0});
 
     if(text_surface == nullptr)
     {
@@ -186,5 +190,12 @@ void Renderer::DisplayText(const char *message, int x, int y, SDL_Rect rect) {
 
     SDL_Texture *text_texture = SDL_CreateTextureFromSurface(sdl_renderer, text_surface);
     SDL_FreeSurface(text_surface);
-    SDL_RenderCopy(sdl_renderer, text_texture, nullptr, &button_image);*/
-};
+
+    SDL_Rect textrect;
+    textrect.x = rect.x;
+    textrect.y = rect.y;
+    textrect.w = 100;
+    textrect.h = 100;
+    SDL_RenderCopy(sdl_renderer, text_texture, nullptr, &textrect);
+    SDL_DestroyTexture(text_texture);
+};*/
